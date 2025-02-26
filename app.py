@@ -1,10 +1,17 @@
 from flask import Flask, request, render_template, send_file
+import pandas as pd
 import os
 from procesar_inventario import procesar_inventario  # Importar la función de procesamiento
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'uploads'
 app.config['OUTPUT_FOLDER'] = 'outputs'
+
+# Cargar la tabla de UPC al inicio de la aplicación
+tabla_upc_path = "./TABLA UPC.xlsx"  # Ruta del archivo de TABLA UPC
+tabla_upc = pd.read_excel(tabla_upc_path)
+tabla_upc['UPC'] = tabla_upc['UPC'].astype(str)
+tabla_upc['UPC'] = tabla_upc['UPC'].str.replace(".0", "")
 
 @app.route("/", methods=["GET", "POST"])
 def index():
@@ -22,12 +29,11 @@ def index():
         file.save(file_path)
         
         try:
-            # Rutas de los archivos de referencia (pueden ser cargados o fijos)
-            tabla_upc_path = "C:/DATA/Catalogo/TABLA UPC.xlsx"  # Puedes cambiarlo para cargarlo dinámicamente
-            tiendas_path = "C:/DATA/Codigos/PropuestaInventarios/Tiendas M3.xlsx"  # Puedes cambiarlo para cargarlo dinámicamente
+            # Ruta del archivo de tiendas (puedes cargarlo de manera similar si no cambia)
+            tiendas_path = "C:/DATA/Codigos/PropuestaInventarios/Tiendas M3.xlsx"
 
             # Procesar el archivo usando la función importada
-            resultados = procesar_inventario(file_path, tabla_upc_path, tiendas_path, app.config['OUTPUT_FOLDER'])
+            resultados = procesar_inventario(file_path, tabla_upc, tiendas_path, app.config['OUTPUT_FOLDER'])
             
             # Devolver el archivo generado para descargar (por ejemplo, la propuesta agrupada)
             return send_file(resultados["propuesta_agrupada"], as_attachment=True)
