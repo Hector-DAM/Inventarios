@@ -1,21 +1,16 @@
 import pandas as pd
 import os
 
-def procesar_inventario(inventario_path, tabla_upc_path, tiendas_path, output_folder):
+def procesar_inventario(inventario_path, tabla_upc, tiendas_path, output_folder):
     """
     Procesa el archivo de inventario y genera los archivos de salida.
     :param inventario_path: Ruta del archivo de inventario cargado.
-    :param tabla_upc_path: Ruta del archivo de la tabla de UPC.
+    :param tabla_upc: DataFrame de la tabla de UPC (ya cargado).
     :param tiendas_path: Ruta del archivo de información de tiendas.
     :param output_folder: Carpeta donde se guardarán los archivos generados.
     :return: Rutas de los archivos generados.
     """
     try:
-        # Cargar la tabla de UPC
-        tabla_upc = pd.read_excel(tabla_upc_path)
-        tabla_upc['UPC'] = tabla_upc['UPC'].astype(str)
-        tabla_upc['UPC'] = tabla_upc['UPC'].str.replace(".0", "")
-
         # Cargar el inventario de la semana
         inventario = pd.read_excel(inventario_path)
         inventario["UPC"] = inventario["UPC"].astype(str)
