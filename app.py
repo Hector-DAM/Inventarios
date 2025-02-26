@@ -45,5 +45,5 @@ if __name__ == "__main__":
     if not os.path.exists(app.config['OUTPUT_FOLDER']):
         os.makedirs(app.config['OUTPUT_FOLDER'])
     
-    # Iniciar la aplicación
-    app.run(debug=False)
+    # Iniciar la aplicación en 0.0.0.0
+    app.run(host="0.0.0.0", port=5000, debug=False)
