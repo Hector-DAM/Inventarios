@@ -1,5 +1,6 @@
 import pandas as pd
 import os
+import zipfile  # Importar la biblioteca para manejar archivos ZIP
 
 def procesar_inventario(inventario_path, tabla_upc, tiendas, output_folder):
     """
@@ -8,7 +9,7 @@ def procesar_inventario(inventario_path, tabla_upc, tiendas, output_folder):
     :param tabla_upc: DataFrame de la tabla de UPC (ya cargado).
     :param tiendas: DataFrame de la tabla de tiendas (ya cargado).
     :param output_folder: Carpeta donde se guardarán los archivos generados.
-    :return: Rutas de los archivos generados.
+    :return: Ruta del archivo ZIP generado.
     """
     try:
         # Cargar el inventario de la semana
@@ -72,11 +73,14 @@ def procesar_inventario(inventario_path, tabla_upc, tiendas, output_folder):
                 upc_tienda = df_tienda.groupby("UPC", as_index=False)["AVAILABLE"].sum()
                 upc_tienda.to_excel(writer, sheet_name=tienda, index=False)
 
-        return {
-            "propuesta_agrupada": propuesta_agrupada_path,
-            "upc_lista": upc_lista_path,
-            "upc_por_tienda": upc_por_tienda_path
-        }
+        # Crear un archivo ZIP con los archivos generados
+        zip_path = os.path.join(output_folder, "archivos_generados.zip")
+        with zipfile.ZipFile(zip_path, 'w') as zipf:
+            zipf.write(propuesta_agrupada_path, os.path.basename(propuesta_agrupada_path))
+            zipf.write(upc_lista_path, os.path.basename(upc_lista_path))
+            zipf.write(upc_por_tienda_path, os.path.basename(upc_por_tienda_path))
+
+        return zip_path  # Devolver la ruta del archivo ZIP
 
     except Exception as e:
         raise Exception(f"Error al procesar el archivo: {str(e)}")
