@@ -13,6 +13,10 @@ tabla_upc = pd.read_excel(tabla_upc_path)
 tabla_upc['UPC'] = tabla_upc['UPC'].astype(str)
 tabla_upc['UPC'] = tabla_upc['UPC'].str.replace(".0", "")
 
+# Cargar la tabla de Tiendas M3 al inicio de la aplicación
+tiendas_path = "./Tiendas M3.xlsx"  # Ruta del archivo de Tiendas M3
+tiendas = pd.read_excel(tiendas_path)
+
 @app.route("/", methods=["GET", "POST"])
 def index():
     if request.method == "POST":
@@ -29,11 +33,8 @@ def index():
         file.save(file_path)
         
         try:
-            # Ruta del archivo de tiendas (puedes cargarlo de manera similar si no cambia)
-            tiendas_path = "C:/DATA/Codigos/PropuestaInventarios/Tiendas M3.xlsx"
-
             # Procesar el archivo usando la función importada
-            resultados = procesar_inventario(file_path, tabla_upc, tiendas_path, app.config['OUTPUT_FOLDER'])
+            resultados = procesar_inventario(file_path, tabla_upc, tiendas, app.config['OUTPUT_FOLDER'])
             
             # Devolver el archivo generado para descargar (por ejemplo, la propuesta agrupada)
             return send_file(resultados["propuesta_agrupada"], as_attachment=True)
