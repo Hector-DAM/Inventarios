@@ -17,6 +17,9 @@ def procesar_inventario(inventario_path, tabla_upc, tiendas, output_folder):
         inventario["UPC"] = inventario["UPC"].astype(str)
         inventario["UPC"] = inventario["UPC"].str.replace(".0", "")
 
+        # Asegurar que no haya cantidades negativas en la columna AVAILABLE
+        inventario["AVAILABLE"] = inventario["AVAILABLE"].apply(lambda x: max(x, 0))  # Cambiar negativos por 0
+        
         # Filtrar solo el inventario de tiendas
         inventario = inventario[inventario["WH"] == "XRS"]
 
