@@ -34,10 +34,10 @@ def index():
         
         try:
             # Procesar el archivo usando la función importada
-            resultados = procesar_inventario(file_path, tabla_upc, tiendas, app.config['OUTPUT_FOLDER'])
+            zip_path = procesar_inventario(file_path, tabla_upc, tiendas, app.config['OUTPUT_FOLDER'])
             
-            # Devolver el archivo generado para descargar (por ejemplo, la propuesta agrupada)
-            return send_file(resultados["propuesta_agrupada"], as_attachment=True)
+            # Devolver el archivo ZIP generado para descargar
+            return send_file(zip_path, as_attachment=True)
         
         except Exception as e:
             return f"Error al procesar el archivo: {str(e)}", 500
