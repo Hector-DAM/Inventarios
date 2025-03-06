@@ -18,7 +18,7 @@ def procesar_inventario(inventario_path, tabla_upc, tiendas, output_folder, tien
         inventario = pd.read_excel(inventario_path)
 
         nuevas_columnas = inventario.iloc[0]
-        inventario = pd.DataFrame(inventario[1:], columns=nuevas_columndas)
+        inventario = pd.DataFrame(inventario[1:], columns=nuevas_columnas)
         inventario = inventario.reset_index(drop=True)
         inventario = inventario.drop([0])
 
