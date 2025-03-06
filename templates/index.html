@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Generar Propuesta de Inventario</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
     <h1>Generar Propuesta de Inventario</h1>
@@ -17,9 +18,9 @@
         </select>
         <br><br>
 
-        <!-- Último barcode -->
-        <label for="ultimo_barcode">Último barcode de la propuesta:</label>
-        <input type="text" name="ultimo_barcode" id="ultimo_barcode" required>
+        <!-- Último barcode (opcional) -->
+        <label for="ultimo_barcode">Último barcode de la propuesta (opcional):</label>
+        <input type="text" name="ultimo_barcode" id="ultimo_barcode">
         <br><br>
 
         <!-- Archivo de inventario -->
