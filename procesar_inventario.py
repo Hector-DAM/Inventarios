@@ -2,6 +2,12 @@ import pandas as pd
 import os
 import zipfile
 
+columnas = [
+    "WH", "STORE", "STYLE", "SKU", "UPC", "LOT_NO", "INV_STATUS", "UOM", 
+    "LATEST_REC_DATE", "LATEST_ISSUE_DATE", "PHYSICAL_INV_DATE", "ON_HAND", 
+    "ALLOCATED_QTY", "AVAILABLE", "AVG_COST", "ON_"
+]
+
 def procesar_inventario(inventario_path, tabla_upc, tiendas, output_folder, tienda_seleccionada, ultimo_barcode):
     """
     Procesa el archivo de inventario y genera los archivos de salida.
@@ -17,26 +23,9 @@ def procesar_inventario(inventario_path, tabla_upc, tiendas, output_folder, tien
         # Cargar el inventario de la semana
         inventario = pd.read_excel(inventario_path)
 
-        # Depuración: Verificar las primeras filas del DataFrame
-        print("Primeras filas del archivo de inventario:")
-        print(inventario.head())
+        inventario.columns = columnas
 
-        # Verificar que el archivo tenga al menos 3 filas
-        if len(inventario) < 3:
-            raise ValueError("El archivo de inventario debe tener al menos 3 filas.")
-
-        # Eliminar la primera fila (no contiene datos útiles)
-        inventario = inventario.drop(inventario.index[0])
-
-        # Convertir la segunda fila en los títulos de las columnas
-        nuevas_columnas = inventario.iloc[0]
-        inventario = pd.DataFrame(inventario[1:], columns=nuevas_columnas)
-
-        # Eliminar la tercera fila (contiene subtotales)
-        inventario = inventario.drop(inventario.index[0])
-
-        # Resetear el índice
-        inventario = inventario.reset_index(drop=True)
+        inventario = inventario.drop([0, 1])
 
         # Depuración: Verificar las columnas y las primeras filas después del procesamiento
         print("Columnas después de procesar:", inventario.columns.tolist())
