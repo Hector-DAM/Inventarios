@@ -16,11 +16,17 @@ def procesar_inventario(inventario_path, tabla_upc, tiendas, output_folder, tien
     try:
         # Cargar el inventario de la semana
         inventario = pd.read_excel(inventario_path)
+
+        nuevas_columnas = inventario.iloc[0]
+        inventario = pd.DataFrame(inventario[1:], columns=nuevas_columndas)
+        inventario = inventario.reset_index(drop=True)
+        inventario = inventario.drop([0])
+
+
+        
         inventario["UPC"] = inventario["UPC"].astype(str)
         inventario["UPC"] = inventario["UPC"].str.replace(".0", "")
 
-        inventario = inventario.iloc[0]
-        inventario = inventario[2:].reset_index(drop=True)
 
         # Asegurar que no haya cantidades negativas en la columna AVAILABLE
         inventario["AVAILABLE"] = inventario["AVAILABLE"].apply(lambda x: max(x, 0))
