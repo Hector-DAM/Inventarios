@@ -3,13 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cargar Inventario</title>
+    <title>Generar Propuesta de Inventario</title>
 </head>
 <body>
-    <h1>Cargar Archivo de Inventario</h1>
+    <h1>Generar Propuesta de Inventario</h1>
     <form action="/" method="post" enctype="multipart/form-data">
-        <input type="file" name="inventario_file" accept=".xlsx">
-        <button type="submit">Procesar</button>
+        <!-- Selección de tienda -->
+        <label for="tienda">Selecciona una tienda:</label>
+        <select name="tienda" id="tienda" required>
+            {% for tienda in tiendas %}
+                <option value="{{ tienda }}">{{ tienda }}</option>
+            {% endfor %}
+        </select>
+        <br><br>
+
+        <!-- Último barcode -->
+        <label for="ultimo_barcode">Último barcode de la propuesta:</label>
+        <input type="text" name="ultimo_barcode" id="ultimo_barcode" required>
+        <br><br>
+
+        <!-- Archivo de inventario -->
+        <label for="inventario_file">Subir archivo de inventario:</label>
+        <input type="file" name="inventario_file" id="inventario_file" accept=".xlsx" required>
+        <br><br>
+
+        <!-- Botón de enviar -->
+        <button type="submit">Generar Propuesta</button>
     </form>
 </body>
 </html>
