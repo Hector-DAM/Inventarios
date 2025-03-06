@@ -10,7 +10,7 @@ def procesar_inventario(inventario_path, tabla_upc, tiendas, output_folder, tien
     :param tiendas: DataFrame de la tabla de tiendas (ya cargado).
     :param output_folder: Carpeta donde se guardarán los archivos generados.
     :param tienda_seleccionada: Tienda seleccionada por el usuario.
-    :param ultimo_barcode: Último barcode de la propuesta.
+    :param ultimo_barcode: Último barcode de la propuesta (puede estar vacío).
     :return: Ruta del archivo ZIP generado.
     """
     try:
@@ -41,12 +41,20 @@ def procesar_inventario(inventario_path, tabla_upc, tiendas, output_folder, tien
         # Filtrar por la tienda seleccionada
         inventarioFinal = inventarioFinal[inventarioFinal["Tienda"] == tienda_seleccionada]
 
-        # Filtrar por barcode (solo barcodes mayores al último barcode)
-        inventarioFinal = inventarioFinal[inventarioFinal["BARCODE"] > ultimo_barcode]
+        # Ordenar los barcodes de A a Z
+        inventarioFinal = inventarioFinal.sort_values(by="BARCODE")
 
-        # Seleccionar las columnas necesarias y ordenar
-        inventarioFinal = inventarioFinal[["BARCODE", "Tienda", "UPC", "EstiloColor", "Size", "Brand", "AVAILABLE"]]
-        inventarioFinal = inventarioFinal.sort_values(by=["BARCODE", "Tienda"])
+        # Si el último barcode está vacío, tomar el 25% superior
+        if not ultimo_barcode:
+            percent = 0.25
+            num_registros = int(len(inventarioFinal) * percent)
+            muestra = inventarioFinal.head(num_registros)
+        else:
+            # Filtrar por barcode (solo barcodes mayores al último barcode)
+            muestra = inventarioFinal[inventarioFinal["BARCODE"] > ultimo_barcode]
+
+        # Seleccionar las columnas necesarias
+        muestra = muestra[["BARCODE", "Tienda", "UPC", "EstiloColor", "Size", "Brand", "AVAILABLE"]]
 
         # Crear la carpeta de salida si no existe
         if not os.path.exists(output_folder):
@@ -55,7 +63,7 @@ def procesar_inventario(inventario_path, tabla_upc, tiendas, output_folder, tien
         # Crear un archivo Excel con la propuesta para la tienda seleccionada
         propuesta_path = os.path.join(output_folder, f"Propuesta_{tienda_seleccionada}.xlsx")
         with pd.ExcelWriter(propuesta_path) as writer:
-            df_propuesta = inventarioFinal.pivot_table(
+            df_propuesta = muestra.pivot_table(
                 index=["Tienda", "BARCODE", "EstiloColor", "Brand"],
                 columns="Size",
                 values="AVAILABLE",
