@@ -19,7 +19,7 @@ def generar_propuesta(inventario_path, tabla_upc, output_folder, tienda_seleccio
 
     try:
         # Cargar archivo de inventario
-        df_inv = pd.read_excel(inventario_path)
+        df_inv = pd.read_excel(inventario_path, dtype={"UPC": str})
 
         # Cambiamos el nombre de las columnas en el inventario
         df_inv = df_inv.rename(columns={"STYLE": "STYLE_INV"})
@@ -36,7 +36,8 @@ def generar_propuesta(inventario_path, tabla_upc, output_folder, tienda_seleccio
 
         # Filtrar la marca CALZANETTO si existe la columna "Brand"
         if "Brand" in df_junto.columns:
-            df_junto = df_junto[df_junto["Brand"] != "CALZANETTO"]
+            df_junto = df_junto[~df_junto["Brand"].isin(["CALZANETTO", "SMJ", "SMA"])]
+
 
         # Filtrar por la tienda seleccionada
         if "STORE_NAME" in df_junto.columns:
@@ -74,12 +75,21 @@ def generar_propuesta(inventario_path, tabla_upc, output_folder, tienda_seleccio
                 fill_value=0,
             ).reset_index()
 
+
+            # Agregamos la columna total
+            tallas_cols = df_propuesta.select_dtypes(include="number").columns
+            df_propuesta["Total"] = df_propuesta[tallas_cols].sum(axis=1)
+
             df_propuesta.columns = [f"Talla{col}" if isinstance(col, (int, float)) else col for col in df_propuesta.columns]
             df_propuesta.to_excel(writer, index=False)
 
         # Generar archivo Excel de cantidades por UPC
+
+        marcas_excluidas = ["CALZANETTO", "SMJ", "SMA"]
+        upc_filtrado = muestra[~muestra["Brand"].isin(marcas_excluidas)]
+
         upc_cantidades_path = os.path.join(output_folder, f"UPC_Cantidades_{tienda_seleccionada}_{fecha}.xlsx")
-        upc_cantidades = muestra.groupby("UPC", as_index=False)["STORE_ON_HAND"].sum()
+        upc_cantidades = upc_filtrado.groupby("UPC", as_index=False)["STORE_ON_HAND"].sum()
         upc_cantidades.to_excel(upc_cantidades_path, index=False)
 
         # Crear archivo ZIP con los dos archivos
