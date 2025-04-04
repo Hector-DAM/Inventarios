@@ -9,7 +9,7 @@ app.config['OUTPUT_FOLDER'] = 'output'
 
 # Cargar la tabla de UPC al inicio de la aplicación
 upc_path = "./TABLA UPC.xlsx"  # Ruta del archivo de TABLA UPC
-tabla_upc = pd.read_excel(upc_path)
+tabla_upc = pd.read_excel(upc_path, dtype={"UPC": str})
 tabla_upc['UPC'] = tabla_upc['UPC'].astype(str)
 tabla_upc['UPC'] = tabla_upc['UPC'].str.replace(".0", "", regex=False)
 
