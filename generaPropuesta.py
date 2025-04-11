@@ -68,6 +68,7 @@ def generar_propuesta(inventario_path, tabla_upc, output_folder, tienda_seleccio
         # Generar archivo Excel de propuesta
         propuesta_path = os.path.join(output_folder, f"Propuesta_{tienda_seleccionada}_{fecha}.xlsx")
         with pd.ExcelWriter(propuesta_path) as writer:
+            # Pivotear la tabla para tener tallas como columnas
             df_propuesta = muestra.pivot_table(
                 index=["STORE_NAME", "BARCODE", "STYLE", "Color Name", "Brand"],
                 columns=["SIZE_DESC"],
@@ -75,12 +76,26 @@ def generar_propuesta(inventario_path, tabla_upc, output_folder, tienda_seleccio
                 fill_value=0,
             ).reset_index()
 
+            # Identificar columnas fijas y columnas de tallas
+            cols_fijas = ["STORE_NAME", "BARCODE", "STYLE", "Color Name", "Brand"]
+            cols_tallas = [col for col in df_propuesta.columns if col not in cols_fijas]
 
-            # Agregamos la columna total
-            tallas_cols = df_propuesta.select_dtypes(include="number").columns
-            df_propuesta["Total"] = df_propuesta[tallas_cols].sum(axis=1)
+            # Agregar columnas vacías (REAL) después de cada talla
+            for col in cols_tallas:
+                df_propuesta[str(col) + "_REAL"] = ""
 
-            df_propuesta.columns = [f"Talla{col}" if isinstance(col, (int, float)) else col for col in df_propuesta.columns]
+            # Reordenar columnas intercalando talla y talla_REAL
+            orden_final = cols_fijas.copy()
+            for col in cols_tallas:
+                orden_final.append(col)
+                orden_final.append(f"{col}_REAL")
+
+            df_propuesta = df_propuesta[orden_final]
+
+            # Calcular la columna Total con solo las tallas (no incluye los "_REAL")
+            df_propuesta["Total"] = df_propuesta[cols_tallas].sum(axis=1)
+
+            # Guardar archivo Excel
             df_propuesta.to_excel(writer, index=False)
 
         # Generar archivo Excel de cantidades por UPC
